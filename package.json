@@ -1,0 +1,6 @@
+{
+  "name": "stobo",
+  "workspaces" : ["stobo-webapp"],
+  "version": "1.0.0",
+  "author": "Marcos Brito"
+}
