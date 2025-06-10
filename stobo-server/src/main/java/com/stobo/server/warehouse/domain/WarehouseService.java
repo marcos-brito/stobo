@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WarehouseService {
+    private static final String NO_SUPPLY_REASON = "estoque zerado";
     private final ItemRepository ItemRepository;
     private final StatusChangeRepository statusChangeRepository;
     private final AdditionRepository additionRepository;
@@ -56,6 +57,15 @@ public class WarehouseService {
     @Transactional
     public Booking confirmBooking(String bookingId) {
         Booking booking = this.findBookingById(bookingId);
+
+        for (BookingItem bookingItem : booking.getItems()) {
+            Item item = bookingItem.getItem();
+
+            if (!item.hasSupply()) {
+                this.inactivateItem(OpaqueId.encode(item.getId()), NO_SUPPLY_REASON);
+                this.ItemRepository.save(item);
+            }
+        }
 
         this.bookingRepository.delete(booking);
         return booking;
