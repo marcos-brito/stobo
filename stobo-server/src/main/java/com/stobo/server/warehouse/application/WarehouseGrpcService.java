@@ -143,7 +143,7 @@ class WarehouseGrpcService extends WarehouseServiceImplBase {
 
     private BookingItem toBookingItem(com.stobo.server.warehouse.domain.BookingItem item) {
         return BookingItem.newBuilder()
-                .setProductId(OpaqueId.encode(item.getProductId()))
+                .setProductId(OpaqueId.encode(item.getItem().getProductId()))
                 .setQuantity(item.getQuantity())
                 .build();
     }

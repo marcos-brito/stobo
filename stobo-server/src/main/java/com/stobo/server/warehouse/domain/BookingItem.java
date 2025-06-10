@@ -1,7 +1,7 @@
 package com.stobo.server.warehouse.domain;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +11,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Embeddable
 public class BookingItem {
-  @Id private long productId;
+  @OneToOne private Item item;
   private int quantity;
 }

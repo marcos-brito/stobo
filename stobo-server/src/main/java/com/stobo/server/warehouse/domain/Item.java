@@ -22,6 +22,8 @@ public class Item {
 
   public void deleteSupply(int decrement) { this.quantity -= decrement; }
 
+  public boolean hasSupply() { return this.quantity > 0; }
+
   public boolean canSupply(int demand) {
     return this.quantity >= demand && this.isActive();
   }

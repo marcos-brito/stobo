@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import lombok.Getter;
 @Entity
 public class Addition {
   @Id @GeneratedValue(strategy = GenerationType.AUTO) private long id;
-  @Id private long productId;
+  @OneToOne private Item item;
   private int quantity;
   private Instant createdAt;
 }

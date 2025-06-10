@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +43,7 @@ public class WarehouseService {
             item.deleteSupply(entry.getValue());
             item = this.ItemRepository.save(item);
 
-            BookingItem bookingItem = BookingItem.builder()
-                    .productId(item.getProductId())
-                    .quantity(entry.getValue())
-                    .build();
+            BookingItem bookingItem = BookingItem.builder().item(item).quantity(entry.getValue()).build();
 
             bookingItems.add(bookingItem);
         }
@@ -70,7 +66,7 @@ public class WarehouseService {
         Booking booking = this.findBookingById(bookingId);
 
         for (BookingItem bookingItem : booking.getItems()) {
-            Item item = this.findItemById(OpaqueId.encode(bookingItem.getProductId()));
+            Item item = bookingItem.getItem();
 
             item.addSupply(bookingItem.getQuantity());
             this.ItemRepository.save(item);
@@ -84,7 +80,7 @@ public class WarehouseService {
     public Item addItem(String productId, int quantity) {
         Item item = this.findItemById(productId);
         Addition addition = Addition.builder()
-                .productId(item.getProductId())
+                .item(item)
                 .quantity(quantity)
                 .createdAt(Instant.now())
                 .build();
