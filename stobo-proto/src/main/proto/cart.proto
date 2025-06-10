@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package stobo.cart;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "CartProto";
+option java_package = "com.stobo.proto.cart";
+
+service CartService {
+  rpc GetCartItems(GetCartItemsRequest) returns (GetCartItemsResponse) {}
+  rpc ClearCartItems(ClearCartItemsRequest) returns (ClearCartItemsResponse) {}
+  rpc AddCartItem(AddCartItemRequest) returns (AddCartItemResponse) {}
+  rpc DeleteCartItem(DeleteCartItemRequest) returns (DeleteCartItemResponse) {}
+  rpc ClearCartItem(ClearCartItemRequest) returns (ClearCartItemResponse) {}
+}
+
+message Item {
+  optional string product_id = 1;
+  optional int32 quantity = 2;
+  optional google.protobuf.Timestamp added_at = 3;
+}
+
+message ItemChange {
+  optional string user_id = 1;
+  optional string product_id = 2;
+  optional int32 quantity = 3;
+}
+
+message GetCartItemsRequest { optional string user_id = 1; }
+message GetCartItemsResponse { repeated Item items = 1; }
+
+message ClearCartItemsRequest { optional string user_id = 1; }
+message ClearCartItemsResponse { repeated Item items = 1; }
+
+message AddCartItemRequest { optional ItemChange change = 1; }
+message AddCartItemResponse { repeated Item items = 1; }
+
+message DeleteCartItemRequest { optional ItemChange change = 1; }
+message DeleteCartItemResponse { repeated Item items = 1; }
+
+message ClearCartItemRequest { optional ItemChange change = 1; }
+message ClearCartItemResponse { repeated Item items = 1; }
