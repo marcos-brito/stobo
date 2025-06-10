@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package stobo.warehouse;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "WarehouseProto";
+option java_package = "com.stobo.proto.warehouse";
+
+service WarehouseService {
+  // Creates a new booking. Booked items are apart from the regular warehouse
+  // and can not be booked again unless a cancelation occurs.
+  rpc CreateWarehouseBooking(CreateWarehouseBookingRequest)
+      returns (CreateWarehouseBookingResponse) {}
+  // Confirms a booking. After confirmation, the items are removed from the
+  // warehouse for good.
+  rpc ConfirmWarehouseBooking(ConfirmWarehouseBookingRequest)
+      returns (ConfirmWarehouseBookingResponse) {}
+  // Cancels a booking. Cancelling a booking will return all items back to the
+  // regular warehouse allowing them to be booked again.
+  rpc CancelWarehouseBooking(CancelWarehouseBookingRequest)
+      returns (CancelWarehouseBookingResponse) {}
+  rpc GetWarehouseItem(GetWarehouseItemRequest)
+      returns (GetWarehouseItemResponse) {}
+  rpc AddWarehouseItem(AddWarehouseItemRequest)
+      returns (AddWarehouseItemResponse) {}
+  rpc ActivateWarehouseItem(ActivateWarehouseItemRequest)
+      returns (ActivateWarehouseItemResponse) {}
+  rpc DeactivateWarehouseItem(DeactivateWarehouseItemRequest)
+      returns (DeactivateWarehouseItemResponse) {}
+}
+
+message BookingItem {
+  optional string product_id = 1;
+  optional uint32 quantity = 2;
+}
+
+message Booking {
+  optional string id = 1;
+  repeated BookingItem items = 2;
+  optional google.protobuf.Timestamp created_at = 3;
+}
+
+enum ItemStatus {
+  ITEM_STATUS_UNSPECIFIED = 0;
+  ITEM_STATUS_ACTIVE = 1;
+  ITEM_STATUS_INACTIVE = 2;
+}
+
+message StatusChange {
+  optional string product_id = 1;
+  optional string reason = 2;
+}
+
+message Item {
+  optional string product_id = 1;
+  optional uint32 quantity = 2;
+  optional ItemStatus status = 3;
+}
+
+message Addition {
+  optional string product_id = 1;
+  optional uint32 quantity = 2;
+}
+
+message CreateWarehouseBookingRequest { repeated BookingItem items = 1; }
+message CreateWarehouseBookingResponse { optional Booking booking = 1; }
+
+message ConfirmWarehouseBookingRequest { optional string id = 1; }
+message ConfirmWarehouseBookingResponse { optional Booking booking = 1; }
+
+message CancelWarehouseBookingRequest { optional string id = 1; }
+message CancelWarehouseBookingResponse { optional Booking booking = 1; }
+
+message GetWarehouseItemRequest { optional string product_id = 1; }
+message GetWarehouseItemResponse { optional Item item = 1; }
+
+message AddWarehouseItemRequest { optional Addition addition = 1; }
+message AddWarehouseItemResponse { optional Item item = 1; }
+
+message ActivateWarehouseItemRequest { optional StatusChange change = 1; }
+message ActivateWarehouseItemResponse { optional Item item = 1; }
+
+message DeactivateWarehouseItemRequest { optional StatusChange change = 1; }
+message DeactivateWarehouseItemResponse { optional Item item = 1; }
