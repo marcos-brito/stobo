@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package stobo.catalog;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "CatalogProto";
+option java_package = "com.stobo.proto.catalog";
+
+service CatalogService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {}
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {}
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {}
+  rpc AddProductCategory(AddProductCategoryRequest)
+      returns (AddProductCategoryResponse) {}
+  rpc DeleteProductCategory(DeleteProductCategoryRequest)
+      returns (DeleteProductCategoryResponse) {}
+}
+
+message Product {
+  optional string id = 1;
+  optional string title = 2;
+  optional string desc = 3;
+  optional string number = 4;
+  optional uint32 weight = 5;
+  optional google.protobuf.Timestamp year = 6;
+  optional Price price = 7;
+  repeated Category categories = 8;
+}
+
+message Price {
+  optional string currency = 1;
+  optional uint64 cents = 2;
+}
+
+message Category {
+  optional string id = 1;
+  optional string name = 2;
+}
+
+message CategoryChange {
+  optional string product_id = 1;
+  optional string category = 2;
+}
+
+message GetProductRequest { optional string product_id = 1; }
+message GetProductResponse { optional Product product = 1; }
+
+message CreateProductRequest { optional Product product = 1; }
+message CreateProductResponse { optional Product product = 1; }
+
+message DeleteProductRequest { optional string product_id = 1; }
+message DeleteProductResponse { optional Product product = 1; }
+
+message AddProductCategoryRequest { optional CategoryChange change = 1; }
+message AddProductCategoryResponse { optional Product product = 1; }
+
+message DeleteProductCategoryRequest { optional CategoryChange change = 1; }
+message DeleteProductCategoryResponse { optional Product product = 1; }
