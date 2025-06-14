@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package stobo.id;
+package stobo.types;
 
 option java_multiple_files = true;
 option java_outer_classname = "IdProto";
-option java_package = "com.stobo.proto.id";
+option java_package = "com.stobo.proto.types";
 
 message Id { optional uint64 seq_id = 1; }

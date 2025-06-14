@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package stobo.price;
+package stobo.types;
 
 option java_multiple_files = true;
 option java_outer_classname = "PriceProto";
-option java_package = "com.stobo.proto.price";
+option java_package = "com.stobo.proto.types";
 
 message Price {
   optional string currency = 1;
