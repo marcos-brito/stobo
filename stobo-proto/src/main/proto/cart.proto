@@ -22,7 +22,7 @@ message Item {
   optional google.protobuf.Timestamp added_at = 3;
 }
 
-message ItemChange {
+message Change {
   optional string user_id = 1;
   optional string product_id = 2;
   optional int32 quantity = 3;
@@ -34,11 +34,11 @@ message GetCartItemsResponse { repeated Item items = 1; }
 message ClearCartItemsRequest { optional string user_id = 1; }
 message ClearCartItemsResponse { repeated Item items = 1; }
 
-message AddCartItemRequest { optional ItemChange change = 1; }
 message AddCartItemResponse { repeated Item items = 1; }
+message AddCartEntryRequest { optional Change change = 1; }
 
-message DeleteCartItemRequest { optional ItemChange change = 1; }
 message DeleteCartItemResponse { repeated Item items = 1; }
+message DeleteCartEntryRequest { optional Change change = 1; }
 
-message ClearCartItemRequest { optional ItemChange change = 1; }
 message ClearCartItemResponse { repeated Item items = 1; }
+message ClearCartEntryRequest { optional Change change = 1; }

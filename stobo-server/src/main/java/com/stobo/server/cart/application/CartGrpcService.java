@@ -3,7 +3,7 @@ package com.stobo.server.cart.application;
 import com.stobo.proto.cart.AddCartItemRequest;
 import com.stobo.proto.cart.AddCartItemResponse;
 import com.stobo.proto.cart.Item;
-import com.stobo.proto.cart.ItemChange;
+import com.stobo.proto.cart.Change;
 import com.stobo.proto.cart.CartServiceGrpc.CartServiceImplBase;
 import com.stobo.proto.cart.ClearCartItemRequest;
 import com.stobo.proto.cart.ClearCartItemResponse;
@@ -55,7 +55,7 @@ class CartGrpcService extends CartServiceImplBase {
     @Override
     public void addCartItem(AddCartItemRequest request,
             StreamObserver<AddCartItemResponse> responseObserver) {
-        ItemChange change = request.getChange();
+        Change change = request.getChange();
         Cart cart = this.cartService.addItem(
                 change.getUserId(), change.getProductId(), change.getQuantity());
         AddCartItemResponse message = AddCartItemResponse.newBuilder()
@@ -69,7 +69,7 @@ class CartGrpcService extends CartServiceImplBase {
     @Override
     public void deleteCartItem(DeleteCartItemRequest request,
             StreamObserver<DeleteCartItemResponse> responseObserver) {
-        ItemChange change = request.getChange();
+        Change change = request.getChange();
         Cart cart = this.cartService.removeItem(
                 change.getUserId(), change.getProductId(), change.getQuantity());
         DeleteCartItemResponse message = DeleteCartItemResponse.newBuilder()
@@ -83,8 +83,8 @@ class CartGrpcService extends CartServiceImplBase {
     @Override
     public void clearCartItem(ClearCartItemRequest request,
             StreamObserver<ClearCartItemResponse> responseObserver) {
-        ItemChange change = request.getChange();
         Cart cart = this.cartService.clearItem(change.getUserId(), change.getProductId());
+        Change change = request.getChange();
         ClearCartItemResponse message = ClearCartItemResponse.newBuilder()
                 .addAllItems(this.toItems(cart))
                 .build();
