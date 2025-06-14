@@ -1,7 +1,7 @@
 package com.stobo.server.warehouse.domain;
 
 import com.stobo.server.common.exception.NotFoundException;
-import com.stobo.server.common.id.OpaqueId;
+import com.stobo.server.common.proto.Id;
 import com.stobo.server.warehouse.exception.ItemUnavailable;
 import com.stobo.server.warehouse.exception.ReasonMissing;
 import java.time.Instant;
@@ -60,7 +60,7 @@ public class WarehouseService {
             Item item = bookingItem.getItem();
 
             if (!item.hasSupply()) {
-                this.inactivateItem(OpaqueId.encode(item.getId()), NO_SUPPLY_REASON);
+                this.inactivateItem(Id.encode(item.getId()), NO_SUPPLY_REASON);
                 this.ItemRepository.save(item);
             }
         }
@@ -99,15 +99,15 @@ public class WarehouseService {
     }
 
     public Item activateItem(String productId, String reason) {
-        return this.changeItemStatus(productId, ItemStatus.ACTIVE, reason);
+        return this.changeItemStatus(productId, Status.ACTIVE, reason);
     }
 
     public Item inactivateItem(String productId, String reason) {
-        return this.changeItemStatus(productId, ItemStatus.INACTIVE, reason);
+        return this.changeItemStatus(productId, Status.INACTIVE, reason);
     }
 
     @Transactional
-    public Item changeItemStatus(String productId, ItemStatus status,
+    public Item changeItemStatus(String productId, Status status,
             String reason) {
         if (reason.isBlank())
             throw new ReasonMissing();
@@ -125,13 +125,13 @@ public class WarehouseService {
     }
 
     public Item findItemById(String productId) {
-        return OpaqueId.decodeLong(productId)
+        return Id.decodeLong(productId)
                 .flatMap(this.ItemRepository::findById)
                 .orElseThrow(() -> new NotFoundException("item", productId));
     }
 
     public Booking findBookingById(String bookingId) {
-        return OpaqueId.decodeLong(bookingId)
+        return Id.decodeLong(bookingId)
                 .flatMap(this.bookingRepository::findById)
                 .orElseThrow(() -> new NotFoundException("booking", bookingId));
     }

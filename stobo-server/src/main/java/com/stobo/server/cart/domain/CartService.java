@@ -1,7 +1,7 @@
 package com.stobo.server.cart.domain;
 
 import com.stobo.server.common.exception.NotFoundException;
-import com.stobo.server.common.id.OpaqueId;
+import com.stobo.server.common.proto.Id;
 import com.stobo.server.warehouse.domain.WarehouseService;
 import com.stobo.server.warehouse.exception.ItemUnavailable;
 import java.util.function.Consumer;
@@ -20,7 +20,7 @@ public class CartService {
   }
 
   public Cart findCartByUserId(String userId) {
-    return OpaqueId.decodeLong(userId)
+    return Id.decodeLong(userId)
         .map(this::findOrCreate)
         .orElseThrow(() -> new NotFoundException("cart", userId));
   }

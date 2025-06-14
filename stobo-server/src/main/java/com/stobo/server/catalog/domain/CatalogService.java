@@ -2,7 +2,7 @@ package com.stobo.server.catalog.domain;
 
 import com.stobo.server.catalog.exception.NoAssociatedCategory;
 import com.stobo.server.common.exception.NotFoundException;
-import com.stobo.server.common.id.OpaqueId;
+import com.stobo.server.common.proto.Id;
 import java.util.function.Consumer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +47,7 @@ public class CatalogService {
     }
 
     public Product findProductById(String productId) {
-        return OpaqueId.decodeLong(productId)
+        return Id.decodeLong(productId)
                 .flatMap(this.productRepository::findById)
                 .orElseThrow(() -> new NotFoundException("product", productId));
     }
