@@ -14,7 +14,7 @@ import com.stobo.proto.catalog.DeleteProductResponse;
 import com.stobo.proto.catalog.GetProductRequest;
 import com.stobo.proto.catalog.GetProductResponse;
 import com.stobo.proto.catalog.Product;
-import com.stobo.proto.catalog.Price;
+import com.stobo.proto.price.Price;
 import com.stobo.server.catalog.domain.CatalogService;
 import com.stobo.server.common.TimestampMapper;
 import com.stobo.server.common.id.OpaqueId;

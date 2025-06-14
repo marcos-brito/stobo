@@ -3,6 +3,7 @@ syntax = "proto3";
 package stobo.catalog;
 
 import "google/protobuf/timestamp.proto";
+import "price.proto";
 
 option java_multiple_files = true;
 option java_outer_classname = "CatalogProto";
@@ -25,13 +26,8 @@ message Product {
   optional string number = 4;
   optional uint32 weight = 5;
   optional google.protobuf.Timestamp year = 6;
-  optional Price price = 7;
+  optional stobo.price.Price price = 7;
   repeated Category categories = 8;
-}
-
-message Price {
-  optional string currency = 1;
-  optional uint64 cents = 2;
 }
 
 message Category {
