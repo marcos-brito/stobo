@@ -15,7 +15,7 @@ import com.stobo.proto.cart.GetCartItemsRequest;
 import com.stobo.proto.cart.GetCartItemsResponse;
 import com.stobo.server.cart.domain.Cart;
 import com.stobo.server.cart.domain.CartService;
-import com.stobo.server.common.TimestampMapper;
+import com.stobo.server.common.proto.Timestamp;
 import com.stobo.server.common.proto.Id;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
@@ -104,7 +104,7 @@ class CartGrpcService extends CartServiceImplBase {
         return Item.newBuilder()
                 .setProductId(Id.encode(item.getProductId()))
                 .setQuantity(item.getQuantity())
-                .setAddedAt(TimestampMapper.fromInstant(item.getAddedAt()))
+                .setAddedAt(Timestamp.fromInstant(item.getAddedAt()))
                 .build();
     }
 }
