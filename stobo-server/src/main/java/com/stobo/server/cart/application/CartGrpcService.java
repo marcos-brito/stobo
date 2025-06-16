@@ -1,22 +1,23 @@
 package com.stobo.server.cart.application;
 
-import com.stobo.proto.cart.AddCartItemRequest;
-import com.stobo.proto.cart.AddCartItemResponse;
-import com.stobo.proto.cart.Item;
+import com.stobo.proto.cart.AddCartEntryRequest;
+import com.stobo.proto.cart.AddCartEntryResponse;
+import com.stobo.proto.cart.Entry;
 import com.stobo.proto.cart.Change;
 import com.stobo.proto.cart.CartServiceGrpc.CartServiceImplBase;
-import com.stobo.proto.cart.ClearCartItemRequest;
-import com.stobo.proto.cart.ClearCartItemResponse;
-import com.stobo.proto.cart.ClearCartItemsRequest;
-import com.stobo.proto.cart.ClearCartItemsResponse;
-import com.stobo.proto.cart.DeleteCartItemRequest;
-import com.stobo.proto.cart.DeleteCartItemResponse;
-import com.stobo.proto.cart.GetCartItemsRequest;
-import com.stobo.proto.cart.GetCartItemsResponse;
+import com.stobo.proto.cart.GetCartEntriesRequest;
+import com.stobo.proto.cart.GetCartEntriesResponse;
+import com.stobo.proto.cart.ClearCartEntryRequest;
+import com.stobo.proto.cart.ClearCartEntryResponse;
+import com.stobo.proto.cart.ClearCartEntriesRequest;
+import com.stobo.proto.cart.ClearCartEntriesResponse;
+import com.stobo.proto.cart.DeleteCartEntryRequest;
+import com.stobo.proto.cart.DeleteCartEntryResponse;
 import com.stobo.server.cart.domain.Cart;
 import com.stobo.server.cart.domain.CartService;
 import com.stobo.server.common.proto.Timestamp;
-import com.stobo.server.common.proto.Id;
+import com.stobo.server.common.proto.Item;
+
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,23 +30,23 @@ class CartGrpcService extends CartServiceImplBase {
     }
 
     @Override
-    public void getCartItems(GetCartItemsRequest request,
-            StreamObserver<GetCartItemsResponse> responseObserver) {
+    public void getCartEntries(GetCartEntriesRequest request, StreamObserver<GetCartEntriesResponse> responseObserver) {
         Cart cart = this.cartService.findCartByUserId(request.getUserId());
-        GetCartItemsResponse message = GetCartItemsResponse.newBuilder()
-                .addAllItems(this.toItems(cart))
+        GetCartEntriesResponse message = GetCartEntriesResponse.newBuilder()
+                .addAllEntries(this.toEntries(cart))
                 .build();
 
         responseObserver.onNext(message);
         responseObserver.onCompleted();
+
     }
 
     @Override
-    public void clearCartItems(ClearCartItemsRequest request,
-            StreamObserver<ClearCartItemsResponse> responseObserver) {
+    public void clearCartEntries(ClearCartEntriesRequest request,
+            StreamObserver<ClearCartEntriesResponse> responseObserver) {
         Cart cart = this.cartService.clearCart(request.getUserId());
-        ClearCartItemsResponse message = ClearCartItemsResponse.newBuilder()
-                .addAllItems(this.toItems(cart))
+        ClearCartEntriesResponse message = ClearCartEntriesResponse.newBuilder()
+                .addAllEntries(this.toEntries(cart))
                 .build();
 
         responseObserver.onNext(message);
@@ -53,13 +54,13 @@ class CartGrpcService extends CartServiceImplBase {
     }
 
     @Override
-    public void addCartItem(AddCartItemRequest request,
-            StreamObserver<AddCartItemResponse> responseObserver) {
+    public void addCartEntry(AddCartEntryRequest request,
+            StreamObserver<AddCartEntryResponse> responseObserver) {
         Change change = request.getChange();
-        Cart cart = this.cartService.addItem(
-                change.getUserId(), change.getProductId(), change.getQuantity());
-        AddCartItemResponse message = AddCartItemResponse.newBuilder()
-                .addAllItems(this.toItems(cart))
+        Cart cart = this.cartService.addEntry(
+                change.getUserId(), change.getItem().getProductId(), change.getItem().getQuantity());
+        AddCartEntryResponse message = AddCartEntryResponse.newBuilder()
+                .addAllEntries(this.toEntries(cart))
                 .build();
 
         responseObserver.onNext(message);
@@ -67,13 +68,13 @@ class CartGrpcService extends CartServiceImplBase {
     }
 
     @Override
-    public void deleteCartItem(DeleteCartItemRequest request,
-            StreamObserver<DeleteCartItemResponse> responseObserver) {
+    public void deleteCartEntry(DeleteCartEntryRequest request,
+            StreamObserver<DeleteCartEntryResponse> responseObserver) {
         Change change = request.getChange();
-        Cart cart = this.cartService.removeItem(
-                change.getUserId(), change.getProductId(), change.getQuantity());
-        DeleteCartItemResponse message = DeleteCartItemResponse.newBuilder()
-                .addAllItems(this.toItems(cart))
+        Cart cart = this.cartService.removeEntry(
+                change.getUserId(), change.getItem().getProductId(), change.getItem().getQuantity());
+        DeleteCartEntryResponse message = DeleteCartEntryResponse.newBuilder()
+                .addAllEntries(this.toEntries(cart))
                 .build();
 
         responseObserver.onNext(message);
@@ -81,30 +82,29 @@ class CartGrpcService extends CartServiceImplBase {
     }
 
     @Override
-    public void clearCartItem(ClearCartItemRequest request,
-            StreamObserver<ClearCartItemResponse> responseObserver) {
-        Cart cart = this.cartService.clearItem(change.getUserId(), change.getProductId());
+    public void clearCartEntry(ClearCartEntryRequest request,
+            StreamObserver<ClearCartEntryResponse> responseObserver) {
         Change change = request.getChange();
-        ClearCartItemResponse message = ClearCartItemResponse.newBuilder()
-                .addAllItems(this.toItems(cart))
+        Cart cart = this.cartService.clearEntry(change.getUserId(), change.getItem().getProductId());
+        ClearCartEntryResponse message = ClearCartEntryResponse.newBuilder()
+                .addAllEntries(this.toEntries(cart))
                 .build();
 
         responseObserver.onNext(message);
         responseObserver.onCompleted();
     }
 
-    private List<Item> toItems(Cart cart) {
-        return cart.getItems()
+    private List<Entry> toEntries(Cart cart) {
+        return cart.getEntries()
                 .stream()
-                .map(this::toItem)
+                .map(this::toEntry)
                 .collect(Collectors.toList());
     }
 
-    private Item toItem(com.stobo.server.cart.domain.Item item) {
-        return Item.newBuilder()
-                .setProductId(Id.encode(item.getProductId()))
-                .setQuantity(item.getQuantity())
-                .setAddedAt(Timestamp.fromInstant(item.getAddedAt()))
+    private Entry toEntry(com.stobo.server.cart.domain.Entry entry) {
+        return Entry.newBuilder()
+                .setItem(Item.from(entry.getItem()))
+                .setAddedAt(Timestamp.fromInstant(entry.getAddedAt()))
                 .build();
     }
 }

@@ -30,7 +30,7 @@ public class CartService {
   }
 
   @Transactional
-  public Cart addItem(String userId, String productId, int quantity) {
+  public Cart addEntry(String userId, String productId, int quantity) {
     com.stobo.server.warehouse.domain.Item item =
         this.warehouseService.findItemById(productId);
 
@@ -42,7 +42,7 @@ public class CartService {
   }
 
   @Transactional
-  public Cart removeItem(String userId, String productId, int quantity) {
+  public Cart removeEntry(String userId, String productId, int quantity) {
     com.stobo.server.warehouse.domain.Item item =
         this.warehouseService.findItemById(productId);
 
@@ -51,7 +51,7 @@ public class CartService {
   }
 
   @Transactional
-  public Cart clearItem(String userId, String productId) {
+  public Cart clearEntry(String userId, String productId) {
     com.stobo.server.warehouse.domain.Item item =
         this.warehouseService.findItemById(productId);
 

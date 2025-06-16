@@ -53,6 +53,6 @@ public class CartTests {
         cart.add(2, 4);
         cart.clear();
 
-        assertEquals(0, cart.getItems().size());
+        assertEquals(0, cart.getEntries().size());
     }
 }
