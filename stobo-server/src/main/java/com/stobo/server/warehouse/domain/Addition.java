@@ -14,7 +14,7 @@ import lombok.Getter;
 @Entity
 public class Addition {
   @Id @GeneratedValue(strategy = GenerationType.AUTO) private long id;
-  @OneToOne private Item item;
+  @OneToOne private Entry entry;
   private int quantity;
   private Instant createdAt;
 }

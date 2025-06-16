@@ -31,8 +31,8 @@ public class CartService {
 
   @Transactional
   public Cart addEntry(String userId, String productId, int quantity) {
-    com.stobo.server.warehouse.domain.Item item =
-        this.warehouseService.findItemById(productId);
+    com.stobo.server.warehouse.domain.Entry item =
+        this.warehouseService.findEntryById(productId);
 
     if (!item.canSupply(quantity))
       throw new ItemUnavailable("");
@@ -43,8 +43,8 @@ public class CartService {
 
   @Transactional
   public Cart removeEntry(String userId, String productId, int quantity) {
-    com.stobo.server.warehouse.domain.Item item =
-        this.warehouseService.findItemById(productId);
+    com.stobo.server.warehouse.domain.Entry item =
+        this.warehouseService.findEntryById(productId);
 
     return this.findAnd(userId,
                         cart -> cart.remove(item.getProductId(), quantity));
@@ -52,8 +52,8 @@ public class CartService {
 
   @Transactional
   public Cart clearEntry(String userId, String productId) {
-    com.stobo.server.warehouse.domain.Item item =
-        this.warehouseService.findItemById(productId);
+    com.stobo.server.warehouse.domain.Entry item =
+        this.warehouseService.findEntryById(productId);
 
     return this.findAnd(userId, cart -> cart.clearItem(item.getProductId()));
   }

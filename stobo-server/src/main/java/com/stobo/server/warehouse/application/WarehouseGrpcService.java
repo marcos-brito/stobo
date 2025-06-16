@@ -1,31 +1,32 @@
 package com.stobo.server.warehouse.application;
 
-import com.stobo.proto.warehouse.ActivateWarehouseItemRequest;
-import com.stobo.proto.warehouse.ActivateWarehouseItemResponse;
-import com.stobo.proto.warehouse.AddWarehouseItemRequest;
-import com.stobo.proto.warehouse.AddWarehouseItemResponse;
-import com.stobo.proto.warehouse.Addition;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.stobo.proto.warehouse.ActivateWarehouseEntryRequest;
+import com.stobo.proto.warehouse.ActivateWarehouseEntryResponse;
+import com.stobo.proto.warehouse.AddWarehouseEntryRequest;
+import com.stobo.proto.warehouse.Entry;
+import com.stobo.proto.warehouse.GetWarehouseEntryRequest;
+import com.stobo.proto.warehouse.GetWarehouseEntryResponse;
+import com.stobo.proto.warehouse.Status;
+import com.stobo.proto.warehouse.AddWarehouseEntryResponse;
 import com.stobo.proto.warehouse.Booking;
-import com.stobo.proto.warehouse.BookingItem;
 import com.stobo.proto.warehouse.CancelWarehouseBookingRequest;
 import com.stobo.proto.warehouse.CancelWarehouseBookingResponse;
 import com.stobo.proto.warehouse.ConfirmWarehouseBookingRequest;
 import com.stobo.proto.warehouse.ConfirmWarehouseBookingResponse;
 import com.stobo.proto.warehouse.CreateWarehouseBookingRequest;
 import com.stobo.proto.warehouse.CreateWarehouseBookingResponse;
-import com.stobo.proto.warehouse.DeactivateWarehouseItemRequest;
-import com.stobo.proto.warehouse.DeactivateWarehouseItemResponse;
-import com.stobo.proto.warehouse.GetWarehouseItemRequest;
-import com.stobo.proto.warehouse.GetWarehouseItemResponse;
-import com.stobo.proto.warehouse.Item;
-import com.stobo.proto.warehouse.ItemStatus;
+import com.stobo.proto.warehouse.DeactivateWarehouseEntryRequest;
+import com.stobo.proto.warehouse.DeactivateWarehouseEntryResponse;
 import com.stobo.proto.warehouse.StatusChange;
 import com.stobo.proto.warehouse.WarehouseServiceGrpc.WarehouseServiceImplBase;
-import com.stobo.server.common.id.OpaqueId;
+import com.stobo.server.common.proto.Item;
 import com.stobo.server.warehouse.domain.WarehouseService;
+import com.stobo.server.common.proto.Id;
+
 import io.grpc.stub.StreamObserver;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 class WarehouseGrpcService extends WarehouseServiceImplBase {
     private final WarehouseService warehouseService;
@@ -76,11 +77,11 @@ class WarehouseGrpcService extends WarehouseServiceImplBase {
     }
 
     @Override
-    public void getWarehouseItem(GetWarehouseItemRequest request,
-            StreamObserver<GetWarehouseItemResponse> responseObserver) {
-        com.stobo.server.warehouse.domain.Item item = this.warehouseService.findItemById(request.getProductId());
-        GetWarehouseItemResponse message = GetWarehouseItemResponse.newBuilder()
-                .setItem(this.toItem(item))
+    public void getWarehouseEntry(GetWarehouseEntryRequest request,
+            StreamObserver<GetWarehouseEntryResponse> responseObserver) {
+        com.stobo.server.warehouse.domain.Entry item = this.warehouseService.findEntryById(request.getProductId());
+        GetWarehouseEntryResponse message = GetWarehouseEntryResponse.newBuilder()
+                .setEntry(this.toEntry(item))
                 .build();
 
         responseObserver.onNext(message);
@@ -88,13 +89,13 @@ class WarehouseGrpcService extends WarehouseServiceImplBase {
     }
 
     @Override
-    public void addWarehouseItem(AddWarehouseItemRequest request,
-            StreamObserver<AddWarehouseItemResponse> responseObserver) {
+    public void addWarehouseEntry(AddWarehouseEntryRequest request,
+            StreamObserver<AddWarehouseEntryResponse> responseObserver) {
         Addition addition = request.getAddition();
-        com.stobo.server.warehouse.domain.Item item = this.warehouseService.addItem(
+        com.stobo.server.warehouse.domain.Entry item = this.warehouseService.addEntry(
                 addition.getProductId(), addition.getQuantity());
-        AddWarehouseItemResponse message = AddWarehouseItemResponse.newBuilder()
-                .setItem(this.toItem(item))
+        AddWarehouseEntryResponse message = AddWarehouseEntryResponse.newBuilder()
+                .setEntry(this.toEntry(item))
                 .build();
 
         responseObserver.onNext(message);
@@ -102,14 +103,13 @@ class WarehouseGrpcService extends WarehouseServiceImplBase {
     }
 
     @Override
-    public void activateWarehouseItem(
-            ActivateWarehouseItemRequest request,
-            StreamObserver<ActivateWarehouseItemResponse> responseObserver) {
+    public void activateWarehouseEntry(ActivateWarehouseEntryRequest request,
+            StreamObserver<ActivateWarehouseEntryResponse> responseObserver) {
         StatusChange change = request.getChange();
-        com.stobo.server.warehouse.domain.Item item = this.warehouseService.activateItem(change.getProductId(),
+        com.stobo.server.warehouse.domain.Entry item = this.warehouseService.activateEntry(change.getProductId(),
                 change.getReason());
-        ActivateWarehouseItemResponse message = ActivateWarehouseItemResponse.newBuilder()
-                .setItem(this.toItem(item))
+        ActivateWarehouseEntryResponse message = ActivateWarehouseEntryResponse.newBuilder()
+                .setEntry(this.toEntry(item))
                 .build();
 
         responseObserver.onNext(message);
@@ -117,14 +117,13 @@ class WarehouseGrpcService extends WarehouseServiceImplBase {
     }
 
     @Override
-    public void deactivateWarehouseItem(
-            DeactivateWarehouseItemRequest request,
-            StreamObserver<DeactivateWarehouseItemResponse> responseObserver) {
+    public void deactivateWarehouseEntry(DeactivateWarehouseEntryRequest request,
+            StreamObserver<DeactivateWarehouseEntryResponse> responseObserver) {
         StatusChange change = request.getChange();
-        com.stobo.server.warehouse.domain.Item item = this.warehouseService.inactivateItem(change.getProductId(),
+        com.stobo.server.warehouse.domain.Entry item = this.warehouseService.inactivateEntry(change.getProductId(),
                 change.getReason());
-        DeactivateWarehouseItemResponse message = DeactivateWarehouseItemResponse.newBuilder()
-                .setItem(this.toItem(item))
+        DeactivateWarehouseEntryResponse message = DeactivateWarehouseEntryResponse.newBuilder()
+                .setEntry(this.toEntry(item))
                 .build();
 
         responseObserver.onNext(message);
@@ -133,33 +132,25 @@ class WarehouseGrpcService extends WarehouseServiceImplBase {
 
     private Booking toBooking(com.stobo.server.warehouse.domain.Booking booking) {
         return Booking.newBuilder()
-                .setId(OpaqueId.encode(booking.getId()))
+                .setId(Id.encode(booking.getId()))
                 .addAllItems(booking.getItems()
                         .stream()
-                        .map(this::toBookingItem)
+                        .map(Item::from)
                         .collect(Collectors.toList()))
                 .build();
     }
 
-    private BookingItem toBookingItem(com.stobo.server.warehouse.domain.BookingItem item) {
-        return BookingItem.newBuilder()
-                .setProductId(OpaqueId.encode(item.getItem().getProductId()))
-                .setQuantity(item.getQuantity())
+    private Entry toEntry(com.stobo.server.warehouse.domain.Entry entry) {
+        return Entry.newBuilder()
+                .setItem(Item.from(entry.getItem()))
+                .setStatus(this.toStatus(entry.getStatus()))
                 .build();
     }
 
-    private Item toItem(com.stobo.server.warehouse.domain.Item item) {
-        return Item.newBuilder()
-                .setProductId(OpaqueId.encode(item.getProductId()))
-                .setQuantity(item.getQuantity())
-                .setStatus(this.toStatus(item.getStatus()))
-                .build();
-    }
-
-    private ItemStatus toStatus(com.stobo.server.warehouse.domain.ItemStatus status) {
+    private Status toStatus(com.stobo.server.warehouse.domain.Status status) {
         return switch (status) {
-            case ACTIVE -> ItemStatus.ITEM_STATUS_ACTIVE;
-            case INACTIVE -> ItemStatus.ITEM_STATUS_INACTIVE;
+            case ACTIVE -> Status.STATUS_ACTIVE;
+            case INACTIVE -> Status.STATUS_INACTIVE;
         };
     }
 }

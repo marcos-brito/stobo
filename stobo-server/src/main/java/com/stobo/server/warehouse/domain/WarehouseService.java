@@ -2,6 +2,7 @@ package com.stobo.server.warehouse.domain;
 
 import com.stobo.server.common.exception.NotFoundException;
 import com.stobo.server.common.proto.Id;
+import com.stobo.server.common.domain.Item;
 import com.stobo.server.warehouse.exception.ItemUnavailable;
 import com.stobo.server.warehouse.exception.ReasonMissing;
 import java.time.Instant;
@@ -14,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class WarehouseService {
     private static final String NO_SUPPLY_REASON = "estoque zerado";
-    private final ItemRepository ItemRepository;
+    private final EntryRepository ItemRepository;
     private final StatusChangeRepository statusChangeRepository;
     private final AdditionRepository additionRepository;
     private final BookingRepository bookingRepository;
 
-    WarehouseService(ItemRepository itemRepository,
+    WarehouseService(EntryRepository itemRepository,
             StatusChangeRepository statusChangeRepository,
             AdditionRepository additionRepository,
             BookingRepository bookingRepository) {
@@ -31,20 +32,20 @@ public class WarehouseService {
 
     @Transactional
     public Booking createBooking(Map<String, Integer> entries) {
-        List<BookingItem> bookingItems = new ArrayList<BookingItem>();
+        List<Item> bookingItems = new ArrayList<Item>();
 
-        for (Map.Entry<String, Integer> entry : entries.entrySet()) {
-            Item item = this.findItemById(entry.getKey());
+        for (Map.Entry<String, Integer> pair : entries.entrySet()) {
+            Entry entry = this.findEntryById(pair.getKey());
 
-            if (!item.canSupply(entry.getValue()))
+            if (!entry.canSupply(pair.getValue()))
                 throw new ItemUnavailable("");
 
-            item.deleteSupply(entry.getValue());
-            item = this.ItemRepository.save(item);
+            entry.deleteSupply(pair.getValue());
+            entry = this.ItemRepository.save(entry);
 
-            BookingItem bookingItem = BookingItem.builder().item(item).quantity(entry.getValue()).build();
+            Item item = new Item(entry.getItem().getProductId(), pair.getValue()) ;
 
-            bookingItems.add(bookingItem);
+            bookingItems.add(item);
         }
 
         Booking booking = Booking.builder().items(bookingItems).createdAt(Instant.now()).build();
@@ -56,12 +57,12 @@ public class WarehouseService {
     public Booking confirmBooking(String bookingId) {
         Booking booking = this.findBookingById(bookingId);
 
-        for (BookingItem bookingItem : booking.getItems()) {
-            Item item = bookingItem.getItem();
+        for (Item item : booking.getItems()) {
+            Entry entry = this.findEntryById(item.getProductId());
 
-            if (!item.hasSupply()) {
-                this.inactivateItem(Id.encode(item.getId()), NO_SUPPLY_REASON);
-                this.ItemRepository.save(item);
+            if (!entry.hasSupply()) {
+                this.inactivateEntry(Id.encode(entry.getId()), NO_SUPPLY_REASON);
+                this.ItemRepository.save(entry);
             }
         }
 
@@ -73,11 +74,11 @@ public class WarehouseService {
     public Booking cancelBooking(String bookingId) {
         Booking booking = this.findBookingById(bookingId);
 
-        for (BookingItem bookingItem : booking.getItems()) {
-            Item item = bookingItem.getItem();
+        for (Item item : booking.getItems()) {
+            Entry entry = this.findEntryById(item.getProductId());
 
-            item.addSupply(bookingItem.getQuantity());
-            this.ItemRepository.save(item);
+            entry.addSupply(item.getQuantity());
+            this.ItemRepository.save(entry);
         }
 
         this.bookingRepository.delete(booking);
@@ -85,34 +86,34 @@ public class WarehouseService {
     }
 
     @Transactional
-    public Item addItem(String productId, int quantity) {
-        Item item = this.findItemById(productId);
+    public Entry addEntry(String productId, int quantity) {
+        Entry entry = this.findEntryById(productId);
         Addition addition = Addition.builder()
-                .item(item)
+                .entry(entry)
                 .quantity(quantity)
                 .createdAt(Instant.now())
                 .build();
 
-        item.addSupply(addition.getQuantity());
+        entry.addSupply(addition.getQuantity());
         this.additionRepository.save(addition);
-        return this.ItemRepository.save(item);
+        return this.ItemRepository.save(entry);
     }
 
-    public Item activateItem(String productId, String reason) {
-        return this.changeItemStatus(productId, Status.ACTIVE, reason);
+    public Entry activateEntry(String productId, String reason) {
+        return this.changeEntryStatus(productId, Status.ACTIVE, reason);
     }
 
-    public Item inactivateItem(String productId, String reason) {
-        return this.changeItemStatus(productId, Status.INACTIVE, reason);
+    public Entry inactivateEntry(String productId, String reason) {
+        return this.changeEntryStatus(productId, Status.INACTIVE, reason);
     }
 
     @Transactional
-    public Item changeItemStatus(String productId, Status status,
+    public Entry changeEntryStatus(String productId, Status status,
             String reason) {
         if (reason.isBlank())
             throw new ReasonMissing();
 
-        Item item = this.findItemById(productId);
+        Entry item = this.findEntryById(productId);
         StatusChange change = StatusChange.builder()
                 .kind(status)
                 .reason(reason)
@@ -124,10 +125,14 @@ public class WarehouseService {
         return this.ItemRepository.save(item);
     }
 
-    public Item findItemById(String productId) {
+    public Entry findEntryById(String productId) {
         return Id.decodeLong(productId)
                 .flatMap(this.ItemRepository::findById)
                 .orElseThrow(() -> new NotFoundException("item", productId));
+    }
+
+    private Entry findEntryById(long productId) {
+        return findEntryById(Id.encode(productId));
     }
 
     public Booking findBookingById(String bookingId) {

@@ -1,5 +1,6 @@
 package com.stobo.server.warehouse.domain;
 
+import com.stobo.server.common.domain.Item;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,25 +13,38 @@ import lombok.Setter;
 @Setter
 @Builder
 @Entity
-public class Item {
-  @Id @GeneratedValue(strategy = GenerationType.AUTO) private long id;
-  @Id private long productId;
-  private ItemStatus status;
-  private int quantity;
+public class Entry {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+    private Item item;
+    private Status status;
 
-  public void addSupply(int increment) { this.quantity += increment; }
+    public void addSupply(int increment) {
+        this.item.add(increment);
+    }
 
-  public void deleteSupply(int decrement) { this.quantity -= decrement; }
+    public void deleteSupply(int decrement) {
+        this.item.remove(decrement);
+    }
 
-  public boolean hasSupply() { return this.quantity > 0; }
+    public boolean hasSupply() {
+        return this.item.getQuantity() > 0;
+    }
 
-  public boolean canSupply(int demand) {
-    return this.quantity >= demand && this.isActive();
-  }
+    public boolean canSupply(int demand) {
+        return this.item.getQuantity() >= demand && this.isActive();
+    }
 
-  public boolean isActive() { return this.status == ItemStatus.ACTIVE; }
+    public boolean isActive() {
+        return this.status == Status.ACTIVE;
+    }
 
-  public void activate() { this.status = ItemStatus.ACTIVE; }
+    public void activate() {
+        this.status = Status.ACTIVE;
+    }
 
-  public void inactivate() { this.status = ItemStatus.INACTIVE; }
+    public void inactivate() {
+        this.status = Status.INACTIVE;
+    }
 }

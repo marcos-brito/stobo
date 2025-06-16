@@ -1,5 +1,5 @@
 package com.stobo.server.warehouse.domain;
 
-public enum ItemStatus {
+public enum Status {
     ACTIVE, INACTIVE
 }

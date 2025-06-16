@@ -13,7 +13,7 @@ import lombok.Getter;
 @Entity
 public class StatusChange {
   @Id @GeneratedValue(strategy = GenerationType.AUTO) private long id;
-  private ItemStatus kind;
+  private Status kind;
   private String reason;
   private Instant changedAt;
 }
