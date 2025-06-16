@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package stobo.types;
+
+option java_multiple_files = true;
+option java_outer_classname = "ItemProto";
+option java_package = "com.stobo.proto.types";
+
+// Represents an association between a product and a quantity.
+message Item {
+  optional string product_id = 1;
+  optional uint32 quantity = 2;
+}

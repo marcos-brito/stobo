@@ -3,6 +3,7 @@ syntax = "proto3";
 package stobo.warehouse;
 
 import "google/protobuf/timestamp.proto";
+import "types/item.proto";
 
 option java_multiple_files = true;
 option java_outer_classname = "WarehouseProto";
@@ -21,31 +22,26 @@ service WarehouseService {
   // regular warehouse allowing them to be booked again.
   rpc CancelWarehouseBooking(CancelWarehouseBookingRequest)
       returns (CancelWarehouseBookingResponse) {}
-  rpc GetWarehouseItem(GetWarehouseItemRequest)
-      returns (GetWarehouseItemResponse) {}
-  rpc AddWarehouseItem(AddWarehouseItemRequest)
-      returns (AddWarehouseItemResponse) {}
-  rpc ActivateWarehouseItem(ActivateWarehouseItemRequest)
-      returns (ActivateWarehouseItemResponse) {}
-  rpc DeactivateWarehouseItem(DeactivateWarehouseItemRequest)
-      returns (DeactivateWarehouseItemResponse) {}
-}
-
-message BookingItem {
-  optional string product_id = 1;
-  optional uint32 quantity = 2;
+  rpc GetWarehouseEntry(GetWarehouseEntryRequest)
+      returns (GetWarehouseEntryResponse) {}
+  rpc AddWarehouseEntry(AddWarehouseEntryRequest)
+      returns (AddWarehouseEntryResponse) {}
+  rpc ActivateWarehouseEntry(ActivateWarehouseEntryRequest)
+      returns (ActivateWarehouseEntryResponse) {}
+  rpc DeactivateWarehouseEntry(DeactivateWarehouseEntryRequest)
+      returns (DeactivateWarehouseEntryResponse) {}
 }
 
 message Booking {
   optional string id = 1;
-  repeated BookingItem items = 2;
+  repeated stobo.types.Item items = 2;
   optional google.protobuf.Timestamp created_at = 3;
 }
 
-enum ItemStatus {
-  ITEM_STATUS_UNSPECIFIED = 0;
-  ITEM_STATUS_ACTIVE = 1;
-  ITEM_STATUS_INACTIVE = 2;
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_ACTIVE = 1;
+  STATUS_INACTIVE = 2;
 }
 
 message StatusChange {
@@ -53,18 +49,12 @@ message StatusChange {
   optional string reason = 2;
 }
 
-message Item {
-  optional string product_id = 1;
-  optional uint32 quantity = 2;
-  optional ItemStatus status = 3;
+message Entry {
+  optional stobo.types.Item item = 1;
+  optional Status status = 3;
 }
 
-message Addition {
-  optional string product_id = 1;
-  optional uint32 quantity = 2;
-}
-
-message CreateWarehouseBookingRequest { repeated BookingItem items = 1; }
+message CreateWarehouseBookingRequest { repeated stobo.types.Item items = 1; }
 message CreateWarehouseBookingResponse { optional Booking booking = 1; }
 
 message ConfirmWarehouseBookingRequest { optional string id = 1; }
@@ -73,14 +63,14 @@ message ConfirmWarehouseBookingResponse { optional Booking booking = 1; }
 message CancelWarehouseBookingRequest { optional string id = 1; }
 message CancelWarehouseBookingResponse { optional Booking booking = 1; }
 
-message GetWarehouseItemRequest { optional string product_id = 1; }
-message GetWarehouseItemResponse { optional Item item = 1; }
+message GetWarehouseEntryRequest { optional string product_id = 1; }
+message GetWarehouseEntryResponse { optional Entry entry = 1; }
 
-message AddWarehouseItemRequest { optional Addition addition = 1; }
-message AddWarehouseItemResponse { optional Item item = 1; }
+message AddWarehouseEntryRequest { optional stobo.types.Item item = 1; }
+message AddWarehouseEntryResponse { optional Entry entry = 1; }
 
-message ActivateWarehouseItemRequest { optional StatusChange change = 1; }
-message ActivateWarehouseItemResponse { optional Item item = 1; }
+message ActivateWarehouseEntryRequest { optional StatusChange change = 1; }
+message ActivateWarehouseEntryResponse { optional Entry entry = 1; }
 
-message DeactivateWarehouseItemRequest { optional StatusChange change = 1; }
-message DeactivateWarehouseItemResponse { optional Item item = 1; }
+message DeactivateWarehouseEntryRequest { optional StatusChange change = 1; }
+message DeactivateWarehouseEntryResponse { optional Entry entry = 1; }

@@ -3,42 +3,41 @@ syntax = "proto3";
 package stobo.cart;
 
 import "google/protobuf/timestamp.proto";
+import "types/item.proto";
 
 option java_multiple_files = true;
 option java_outer_classname = "CartProto";
 option java_package = "com.stobo.proto.cart";
 
 service CartService {
-  rpc GetCartItems(GetCartItemsRequest) returns (GetCartItemsResponse) {}
-  rpc ClearCartItems(ClearCartItemsRequest) returns (ClearCartItemsResponse) {}
-  rpc AddCartItem(AddCartItemRequest) returns (AddCartItemResponse) {}
-  rpc DeleteCartItem(DeleteCartItemRequest) returns (DeleteCartItemResponse) {}
-  rpc ClearCartItem(ClearCartItemRequest) returns (ClearCartItemResponse) {}
+  rpc GetCartEntries(GetCartEntriesRequest) returns (GetCartEntriesResponse) {}
+  rpc ClearCartEntries(ClearCartEntriesRequest) returns (ClearCartEntriesResponse) {}
+  rpc AddCartEntry(AddCartEntryRequest) returns (AddCartEntryResponse) {}
+  rpc DeleteCartEntry(DeleteCartEntryRequest) returns (DeleteCartEntryResponse) {}
+  rpc ClearCartEntry(ClearCartEntryRequest) returns (ClearCartEntryResponse) {}
 }
 
-message Item {
-  optional string product_id = 1;
-  optional int32 quantity = 2;
-  optional google.protobuf.Timestamp added_at = 3;
+message Entry {
+  optional stobo.types.Item item = 1;
+  optional google.protobuf.Timestamp added_at = 2;
 }
 
 message Change {
   optional string user_id = 1;
-  optional string product_id = 2;
-  optional int32 quantity = 3;
+  optional stobo.types.Item item = 2;
 }
 
-message GetCartItemsRequest { optional string user_id = 1; }
-message GetCartItemsResponse { repeated Item items = 1; }
+message GetCartEntriesRequest { optional string user_id = 1; }
+message GetCartEntriesResponse { repeated Entry entries = 1; }
 
-message ClearCartItemsRequest { optional string user_id = 1; }
-message ClearCartItemsResponse { repeated Item items = 1; }
+message ClearCartEntriesRequest { optional string user_id = 1; }
+message ClearCartEntriesResponse { repeated Entry entries = 1; }
 
-message AddCartItemResponse { repeated Item items = 1; }
 message AddCartEntryRequest { optional Change change = 1; }
+message AddCartEntryResponse { repeated Entry entries = 1; }
 
-message DeleteCartItemResponse { repeated Item items = 1; }
 message DeleteCartEntryRequest { optional Change change = 1; }
+message DeleteCartEntryResponse { repeated Entry entries = 1; }
 
-message ClearCartItemResponse { repeated Item items = 1; }
 message ClearCartEntryRequest { optional Change change = 1; }
+message ClearCartEntryResponse { repeated Entry entries = 1; }
